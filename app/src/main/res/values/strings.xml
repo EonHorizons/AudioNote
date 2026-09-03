@@ -94,4 +94,8 @@
     <string name="audio_record_permission" translatable="false">Audio record permission</string>
     <string name="ok" translatable="false">OK</string>
     <string name="file_not_found" translatable="false">File not found</string>
+    <string name="storage_permission" translatable="false">Storage permission</string>
+    <string name="storage_permission_required" translatable="false">Storage permission is required to save notes to the public AudioNote folder so apps like MEGA can sync them</string>
+    <string name="manage_storage_permission" translatable="false">Allow access to manage all files</string>
+    <string name="manage_storage_permission_required" translatable="false">To save notes to the public AudioNote folder so apps like MEGA can sync them, please enable \"Allow access to manage all files\" for AudioNote</string>
 </resources>

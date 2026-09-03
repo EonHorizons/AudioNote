@@ -21,6 +21,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -48,6 +49,8 @@ import com.certified.audionote.utils.cancelAlarm
 import com.certified.audionote.utils.currentDate
 import com.certified.audionote.utils.filePath
 import com.certified.audionote.utils.formatReminderDate
+import com.certified.audionote.utils.hasStoragePermission
+import com.certified.audionote.utils.manageExternalStorageIntent
 import com.certified.audionote.utils.roundOffDecimal
 import com.certified.audionote.utils.startAlarm
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -89,7 +92,29 @@ class AddNoteFragment : Fragment(), DatePickerDialog.OnDateSetListener,
                 setPositiveButton(getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
                 show()
             }
-            else startRecording()
+            else beginRecordingIfStoragePermitted()
+        }
+
+    private val requestStoragePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (!isGranted) MaterialAlertDialogBuilder(requireContext()).apply {
+                setTitle(getString(R.string.storage_permission))
+                setMessage(getString(R.string.storage_permission_required))
+                setPositiveButton(getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
+                show()
+            }
+            else beginRecording()
+        }
+
+    private val manageStoragePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (hasStoragePermission(requireContext())) beginRecording()
+            else MaterialAlertDialogBuilder(requireContext()).apply {
+                setTitle(getString(R.string.manage_storage_permission))
+                setMessage(getString(R.string.manage_storage_permission_required))
+                setPositiveButton(getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
+                show()
+            }
         }
 
     override fun onCreateView(
@@ -173,21 +198,7 @@ class AddNoteFragment : Fragment(), DatePickerDialog.OnDateSetListener,
                         requireContext(), Manifest.permission.RECORD_AUDIO
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    btnRecord.setImageDrawable(
-                        ResourcesCompat.getDrawable(
-                            resources,
-                            R.drawable.ic_mic_recording,
-                            null
-                        )
-                    ).run {
-                        try {
-                            file?.delete()
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                        isRecording = true
-                        startRecording()
-                    }
+                    beginRecordingIfStoragePermitted()
                 } else if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO))
                     MaterialAlertDialogBuilder(requireContext()).apply {
                         setTitle(getString(R.string.audio_record_permission))
@@ -207,6 +218,37 @@ class AddNoteFragment : Fragment(), DatePickerDialog.OnDateSetListener,
                         stopRecording()
                     }
             }
+        }
+    }
+
+    // The public AudioNote folder needs its own permission on top of RECORD_AUDIO.
+    private fun beginRecordingIfStoragePermitted() {
+        when {
+            hasStoragePermission(requireContext()) -> beginRecording()
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+                manageStoragePermissionLauncher.launch(manageExternalStorageIntent(requireContext()))
+            shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) ->
+                MaterialAlertDialogBuilder(requireContext()).apply {
+                    setTitle(getString(R.string.storage_permission))
+                    setMessage(getString(R.string.storage_permission_required))
+                    setPositiveButton(getString(R.string.ok)) { dialog, _ -> dialog.dismiss() }
+                    show()
+                }
+            else -> requestStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+    }
+
+    private fun beginRecording() {
+        binding.btnRecord.setImageDrawable(
+            ResourcesCompat.getDrawable(resources, R.drawable.ic_mic_recording, null)
+        ).run {
+            try {
+                file?.delete()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            isRecording = true
+            startRecording()
         }
     }
 
