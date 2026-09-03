@@ -46,7 +46,7 @@ val colors = listOf(
 
 // Not app-private storage: unlike getExternalFilesDir, other apps (e.g. MEGA) can see this folder.
 fun publicNotesDirectory(): File {
-    val dir = File(Environment.getExternalStorageDirectory(), "AudioNote")
+    val dir = File(Environment.getExternalStorageDirectory(), "Pixel9a/Recordings/CallRecordings")
     if (!dir.exists()) dir.mkdirs()
     return dir
 }

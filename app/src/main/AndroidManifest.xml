@@ -22,11 +22,11 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <!-- Needed on Android 10 (API 29) and below to write to the public AudioNote folder -->
+    <!-- Needed on Android 10 (API 29) and below to write to the public recordings folder -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
-    <!-- Needed on Android 12 (API 32) and below to read notes back from the public AudioNote folder -->
+    <!-- Needed on Android 12 (API 32) and below to read notes back from the public recordings folder -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
