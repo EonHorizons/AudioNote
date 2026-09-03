@@ -31,21 +31,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Check JitPack artifact status
-        run: |
-          echo "== TimerX build status =="
-          curl -sS "https://jitpack.io/api/builds/com.github.arsvechkarev/TimerX/2.3.2" || true
-          echo
-          echo "== TimerX tags =="
-          curl -sS "https://api.github.com/repos/arsvechkarev/TimerX/tags" || true
-          echo
-          echo "== PageIndicatorView build status =="
-          curl -sS "https://jitpack.io/api/builds/com.github.romandanylyk/PageIndicatorView/1.0.3" || true
-          echo
-          echo "== PageIndicatorView tags =="
-          curl -sS "https://api.github.com/repos/romandanylyk/PageIndicatorView/tags" || true
-          echo
-
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
 
