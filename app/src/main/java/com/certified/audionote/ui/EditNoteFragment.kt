@@ -56,7 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timerx.Stopwatch
 import timerx.Timer
-import timerx.TimerBuilder
+import timerx.buildTimer
 import java.io.File
 import java.io.IOException
 import java.util.Calendar
@@ -187,7 +187,7 @@ class EditNoteFragment : Fragment(), DatePickerDialog.OnDateSetListener,
                     )
                 )
                     .run {
-                        if (timer?.getRemainingTimeIn(TimeUnit.SECONDS) != 0L)
+                        if (TimeUnit.MILLISECONDS.toSeconds(timer?.remainingTimeInMillis ?: 0L) != 0L)
                             pausePlayingRecording()
                         else
                             stopPlayingRecording()
@@ -287,11 +287,11 @@ class EditNoteFragment : Fragment(), DatePickerDialog.OnDateSetListener,
     }
 
     private fun startPlayingRecording() {
-        timer = TimerBuilder()
-            .startTime(_note.audioLength, TimeUnit.SECONDS)
-            .startFormat(if (_note.audioLength >= 3600000L) "HH:MM:SS" else "MM:SS")
-            .onTick { time -> binding.tvTimer.text = time }
-            .actionWhen(0, TimeUnit.SECONDS) {
+        timer = buildTimer {
+            startTime(_note.audioLength, TimeUnit.SECONDS)
+            startFormat(if (_note.audioLength >= 3600000L) "HH:MM:SS" else "MM:SS")
+            onTick { _, time -> binding.tvTimer.text = time }
+            actionWhen(0, TimeUnit.SECONDS) {
                 binding.btnRecord.setImageDrawable(
                     ResourcesCompat.getDrawable(
                         resources,
@@ -303,7 +303,7 @@ class EditNoteFragment : Fragment(), DatePickerDialog.OnDateSetListener,
                     stopPlayingRecording()
                 }
             }
-            .build()
+        }
         mediaPlayer = MediaPlayer()
         try {
             mediaPlayer?.apply {
