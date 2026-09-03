@@ -21,11 +21,17 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.os.Environment
+import android.provider.Settings
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.certified.audionote.R
 import com.certified.audionote.model.Note
 import com.certified.audionote.ui.AlertReceiver
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -38,7 +44,28 @@ val colors = listOf(
     -11419154, -14654801
 )
 
-fun filePath(activity: Activity) = activity.getExternalFilesDir("/")?.absolutePath
+// Not app-private storage: unlike getExternalFilesDir, other apps (e.g. MEGA) can see this folder.
+fun publicNotesDirectory(): File {
+    val dir = File(Environment.getExternalStorageDirectory(), "AudioNote")
+    if (!dir.exists()) dir.mkdirs()
+    return dir
+}
+
+fun filePath(activity: Activity): String = publicNotesDirectory().absolutePath
+
+fun hasStoragePermission(context: Context): Boolean =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        Environment.isExternalStorageManager()
+    } else {
+        ContextCompat.checkSelfPermission(
+            context, android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+fun manageExternalStorageIntent(context: Context): Intent =
+    Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+        data = Uri.fromParts("package", context.packageName, null)
+    }
 
 fun currentDate(): Calendar = Calendar.getInstance()
 
