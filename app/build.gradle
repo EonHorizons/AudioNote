@@ -97,11 +97,11 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.44"
     kapt "com.google.dagger:hilt-compiler:2.44"
 
-//    TimerX
-    implementation 'com.arsvechkarev:timerx:2.3.2'
+//    TimerX (jcenter shut down; resolved via JitPack now)
+    implementation 'com.github.arsvechkarev:TimerX:2.3.2'
 
-//    page indicator
-    implementation "com.romandanylyk:pageindicatorview:1.0.3@aar"
+//    page indicator (jcenter shut down; resolved via JitPack now)
+    implementation 'com.github.romandanylyk:PageIndicatorView:1.0.3'
 }
 repositories {
     mavenCentral()
